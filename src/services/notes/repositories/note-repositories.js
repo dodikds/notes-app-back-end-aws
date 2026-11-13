@@ -1,5 +1,4 @@
-import pkg from 'pg';
-const { Pool } = pkg;
+import { Pool } from 'pg';
 import { nanoid } from 'nanoid';
 
 class NoteRepositories {
@@ -23,14 +22,20 @@ class NoteRepositories {
   }
 
   async getNotes(owner) {
-    const result = await this.pool.query('SELECT * FROM notes WHERE owner = $1');
+    const query = {
+      text: 'SELECT * FROM notes WHERE owner = $1',
+      values: [owner],
+    };
+
+    const result = await this.pool.query(query);
+
     return result.rows;
   }
 
   async getNoteById(id) {
     const query = {
-        text: 'SELECT * FROM notes WHERE id = $1',
-        values: [id],
+      text: 'SELECT * FROM notes WHERE id = $1',
+      values: [id],
     };
 
     const result = await this.pool.query(query);
@@ -38,12 +43,12 @@ class NoteRepositories {
     return result.rows[0];
   }
 
-  async editNoteById({ id, title, body, tags }) {
+  async editNote({ id, title, body, tags }) {
     const updatedAt = new Date().toISOString();
 
     const query = {
-        text: 'UPDATE notes SET title = $1, body = $2, tags = $3, updated_at = $4 WHERE id = $5 RETURNING id',
-        values: [title, body, tags, updatedAt, id],
+      text: 'UPDATE notes SET title = $1, body = $2, tags = $3, updated_at = $4 WHERE id = $5 RETURNING id',
+      values: [title, body, tags, updatedAt, id],
     };
 
     const result = await this.pool.query(query);
@@ -51,19 +56,13 @@ class NoteRepositories {
     return result.rows[0];
   }
 
-  async deleteNoteById(id) {
+  async deleteNote(id) {
     const query = {
-        text: 'DELETE FROM notes WHERE id = $1 RETURNING id',
-        values: [id],
+      text: 'DELETE FROM notes WHERE id = $1 RETURNING id',
+      values: [id],
     };
 
     const result = await this.pool.query(query);
-
-    // ✅ Cek apakah ada baris yang terhapus
-    if (result.rows.length === 0) {
-      return null; // Kembalikan null jika ID tidak ditemukan
-    }
-
     return result.rows[0].id;
   }
 
@@ -72,14 +71,19 @@ class NoteRepositories {
       text: 'SELECT * FROM notes WHERE id = $1',
       values: [id],
     };
+
     const result = await this.pool.query(query);
+
     if (!result.rows.length) {
       return null;
     }
+
     const note = result.rows[0];
+
     if (note.owner !== owner) {
       return null;
     }
+
     return result.rows[0];
   }
 }

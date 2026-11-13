@@ -11,9 +11,9 @@ async function authenticateToken(req, res, next) {
     } catch (error) {
       return response(res, 401, error.message, null);
     }
- }
- 
- return response(res, 401, 'Unauthorized', null);
+  }
+
+  return response(res, 401, 'Unauthorized', null);
 };
- 
+
 export default authenticateToken;

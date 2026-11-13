@@ -1,5 +1,5 @@
 const response = (res, statusCode, message, data) => {
-  return res
+  return res
     .status(statusCode)
     .json({
       code: statusCode,
@@ -9,5 +9,5 @@ const response = (res, statusCode, message, data) => {
     })
     .end();
 };
- 
+
 export default response;
